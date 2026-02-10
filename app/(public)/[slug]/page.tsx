@@ -15,8 +15,15 @@ async function getContentPage(slug: string) {
 }
 
 export async function generateStaticParams(): Promise<RouteParams[]> {
-    const pages = await ContentPageService.listPublicActive();
-    return pages.map((page) => ({ slug: page.slug }));
+    try {
+        const pages = await ContentPageService.listPublicActive();
+        return pages
+            .filter((page) => typeof page.slug === "string" && page.slug.length > 0)
+            .map((page) => ({ slug: page.slug }));
+    } catch (error) {
+        console.error("[content-pages] generateStaticParams failed:", error);
+        return [];
+    }
 }
 
 export async function generateMetadata(props: PublicContentPageProps): Promise<Metadata> {

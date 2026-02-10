@@ -5,9 +5,10 @@ const siteUrl = rawSiteUrl.endsWith("/") ? rawSiteUrl.slice(0, -1) : rawSiteUrl;
 
 export const SEO_CONFIG = {
   siteUrl,
-  siteName: process.env.NEXT_PUBLIC_SITE_NAME,
-  defaultTitle: process.env.NEXT_PUBLIC_SITE_NAME,
-  defaultDescription: process.env.NEXT_PUBLIC_SITE_DESCRIPTION,
+  siteName: process.env.NEXT_PUBLIC_SITE_NAME || "",
+  defaultTitle: process.env.NEXT_PUBLIC_SITE_NAME || "",
+  defaultDescription:
+    process.env.NEXT_PUBLIC_SITE_DESCRIPTION || "",
   locale: "en_US",
   twitterHandle: process.env.NEXT_PUBLIC_TWITTER_HANDLE || undefined,
 };

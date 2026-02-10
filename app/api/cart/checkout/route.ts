@@ -3,6 +3,7 @@ import { createAdminClient, createClient } from "@/lib/supabase/server";
 import { SUPABASE_SERVICE_ROLE_KEY } from "@/lib/env";
 import { OrderService, OrderChargeInsert } from "@/lib/services/orderService";
 import { CheckoutService } from "@/lib/services/checkoutService";
+import type { Json } from "@/lib/types/supabase";
 
 export const runtime = "nodejs";
 
@@ -35,6 +36,10 @@ type InventoryRow = {
 
 function toMoney(value: number) {
     return Math.round(value * 100) / 100;
+}
+
+function toNullableString(value: unknown): string | null {
+    return typeof value === "string" ? value : null;
 }
 
 function computeFinalPrice(rows: InventoryRow[]): number | null {
@@ -177,7 +182,7 @@ export async function POST(request: NextRequest) {
         // 3.5 Prepare Shipping Address JSON with Contact Info
         // User requirements: No customers table. Store all info in shipping_address JSONB.
         // Structure: { fullName, email, phone, address: "..." }
-        let shippingAddressPayload: Record<string, unknown> | null = null;
+        let shippingAddressPayload: Json | null = null;
         if (contactData) {
             const shippingAddress = contactData.shipping_address;
             const nestedAddress =
@@ -186,14 +191,14 @@ export async function POST(request: NextRequest) {
                     : null;
 
             shippingAddressPayload = {
-                fullName: contactData.fullName,
-                email: contactData.email,
-                phone: contactData.phone,
+                fullName: toNullableString(contactData.fullName),
+                email: toNullableString(contactData.email),
+                phone: toNullableString(contactData.phone),
                 // Address might be a string in 'shipping_address' prop of contactData?
                 // The form sends: contact: { fullName, email, phone, shipping_address: { address: "..." } }
                 // So we flatten it or keep it?
                 // Let's flatten for simplicity as per OrderService extraction logic which looks for root keys or standard keys
-                address: typeof nestedAddress === "string" ? nestedAddress : null
+                address: toNullableString(nestedAddress),
             };
         }
 

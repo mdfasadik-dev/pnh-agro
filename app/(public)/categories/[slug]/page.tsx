@@ -152,16 +152,21 @@ async function fetchData(slugOrId: string) {
 }
 
 export async function generateStaticParams(): Promise<RouteParams[]> {
-    const supabase = createPublicClient();
-    const { data } = await supabase
-        .from("categories")
-        .select("id,slug,is_active")
-        .eq("is_active", true)
-        .order("created_at", { ascending: false });
+    try {
+        const supabase = createPublicClient();
+        const { data } = await supabase
+            .from("categories")
+            .select("id,slug,is_active")
+            .eq("is_active", true)
+            .order("created_at", { ascending: false });
 
-    return (data || []).map((category) => ({
-        slug: category.slug || category.id,
-    }));
+        return (data || []).map((category) => ({
+            slug: category.slug || category.id,
+        }));
+    } catch (error) {
+        console.error("[categories] generateStaticParams failed:", error);
+        return [];
+    }
 }
 
 export async function generateMetadata(props: CategoryPageProps): Promise<Metadata> {

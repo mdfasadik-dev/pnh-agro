@@ -103,10 +103,10 @@ async function fetchProduct(idOrSlug: string) {
             const attrCandidate = Array.isArray(attrSource) ? attrSource[0] : attrSource;
             const attr =
                 attrCandidate &&
-                typeof attrCandidate === "object" &&
-                "id" in attrCandidate &&
-                "name" in attrCandidate &&
-                "data_type" in attrCandidate
+                    typeof attrCandidate === "object" &&
+                    "id" in attrCandidate &&
+                    "name" in attrCandidate &&
+                    "data_type" in attrCandidate
                     ? (attrCandidate as { id: string; name: string; data_type: string })
                     : null;
             if (!attr) continue;
@@ -216,33 +216,38 @@ async function fetchProduct(idOrSlug: string) {
 }
 
 export async function generateStaticParams(): Promise<RouteParams[]> {
-    const supabase = createPublicClient();
-    const { data } = await supabase
-        .from("products")
-        .select("id,slug,is_active,category_id")
-        .eq("is_active", true)
-        .order("created_at", { ascending: false });
-
-    const rows = data || [];
-    const categoryIds = Array.from(
-        new Set(rows.map((row) => row.category_id).filter((id): id is string => Boolean(id)))
-    );
-
-    let activeCategorySet = new Set<string>();
-    if (categoryIds.length > 0) {
-        const { data: activeCategories } = await supabase
-            .from("categories")
-            .select("id")
+    try {
+        const supabase = createPublicClient();
+        const { data } = await supabase
+            .from("products")
+            .select("id,slug,is_active,category_id")
             .eq("is_active", true)
-            .in("id", categoryIds);
-        activeCategorySet = new Set((activeCategories || []).map((category) => category.id));
-    }
+            .order("created_at", { ascending: false });
 
-    return rows
-        .filter((product) => !product.category_id || activeCategorySet.has(product.category_id))
-        .map((product) => ({
-        id: product.slug || product.id,
-    }));
+        const rows = data || [];
+        const categoryIds = Array.from(
+            new Set(rows.map((row) => row.category_id).filter((id): id is string => Boolean(id)))
+        );
+
+        let activeCategorySet = new Set<string>();
+        if (categoryIds.length > 0) {
+            const { data: activeCategories } = await supabase
+                .from("categories")
+                .select("id")
+                .eq("is_active", true)
+                .in("id", categoryIds);
+            activeCategorySet = new Set((activeCategories || []).map((category) => category.id));
+        }
+
+        return rows
+            .filter((product) => !product.category_id || activeCategorySet.has(product.category_id))
+            .map((product) => ({
+                id: product.slug || product.id,
+            }));
+    } catch (error) {
+        console.error("[products] generateStaticParams failed:", error);
+        return [];
+    }
 }
 
 export async function generateMetadata(props: ProductPageProps): Promise<Metadata> {
@@ -328,15 +333,15 @@ export default async function ProductDetailPage(props: ProductPageProps) {
         offers:
             price.minPrice != null
                 ? {
-                      "@type": "Offer",
-                      priceCurrency: process.env.NEXT_PUBLIC_CURRENCY_CODE || "USD",
-                      price: Number(price.minPrice.toFixed(2)),
-                      availability:
-                          (baseQty ?? 0) > 0
-                              ? "https://schema.org/InStock"
-                              : "https://schema.org/OutOfStock",
-                      url: absoluteUrl(productPath),
-                  }
+                    "@type": "Offer",
+                    priceCurrency: process.env.NEXT_PUBLIC_CURRENCY_CODE || "USD",
+                    price: Number(price.minPrice.toFixed(2)),
+                    availability:
+                        (baseQty ?? 0) > 0
+                            ? "https://schema.org/InStock"
+                            : "https://schema.org/OutOfStock",
+                    url: absoluteUrl(productPath),
+                }
                 : undefined,
     };
 
@@ -389,11 +394,10 @@ export default async function ProductDetailPage(props: ProductPageProps) {
                     basePriceOriginal={
                         hasDiscount
                             ? originalRangeDiffers
-                                ? `${symbol}${price.minOriginal?.toFixed(0)}${
-                                      price.maxOriginal && price.maxOriginal !== price.minOriginal
-                                          ? ` - ${symbol}${price.maxOriginal.toFixed(0)}`
-                                          : ""
-                                  }`
+                                ? `${symbol}${price.minOriginal?.toFixed(0)}${price.maxOriginal && price.maxOriginal !== price.minOriginal
+                                    ? ` - ${symbol}${price.maxOriginal.toFixed(0)}`
+                                    : ""
+                                }`
                                 : `${symbol}${price.minOriginal?.toFixed(0)}`
                             : null
                     }
