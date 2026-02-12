@@ -20,7 +20,7 @@ export async function CategoriesSection() {
     return (
         <div className="w-full text-center">
             <header className="mb-6 flex flex-col gap-1">
-                <h2 className="text-xl font-semibold tracking-tight">Browse Categories</h2>
+                <h2 className="text-3xl font-bold tracking-tight mb-2">Browse Categories</h2>
             </header>
             <CategoriesGrid categories={categories} />
         </div>

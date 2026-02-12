@@ -54,7 +54,7 @@ export async function FeaturedProducts({ limit = 8 }: Props) {
     return (
         <section className="w-full flex flex-col gap-6" aria-labelledby="featured-heading">
             <div className="flex items-center justify-center">
-                <h2 id="featured-heading" className="text-xl text-center font-semibold tracking-tight">Featured Products</h2>
+                <h2 id="featured-heading" className="text-3xl text-center font-bold tracking-tight mb-2">Featured Products</h2>
             </div>
             <ProductCardsGrid products={products} priceMap={priceMap} badgeMap={badgeMap} symbol={symbol} />
         </section>

@@ -32,7 +32,7 @@ export async function Footer() {
             : {};
     const websiteHref = normalizeUrl(store?.website_url);
     return (
-        <footer className="mt-24 border-t bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60 text-sm">
+        <footer className="border-t bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60 text-sm">
             <div className={`max-w-6xl mx-auto px-6 py-14 grid gap-10 ${hasHours && hasCoords ? 'md:grid-cols-4' : (hasHours || hasCoords) ? 'md:grid-cols-3' : 'md:grid-cols-2'}`}>
                 <div className="space-y-3">
                     <span className="text-lg font-bold tracking-tight">{store?.name || 'Store'}</span>

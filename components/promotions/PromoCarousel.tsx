@@ -69,7 +69,7 @@ export function PromoCarousel({ promotion }: PromoCarouselProps) {
     return (
         <section className="w-full py-12 bg-muted/30">
             <div className="container mx-auto px-4">
-                <div className="flex flex-col items-center mb-10 text-center">
+                <div className="flex flex-col items-center mb-6 text-center">
                     <h2 className="text-3xl font-bold tracking-tight mb-2">{promotion.title || 'Featured Offers'}</h2>
                     {promotion.description && (
                         <p className="text-muted-foreground max-w-2xl">{promotion.description}</p>
