@@ -144,39 +144,41 @@ export function HeroSection({
     }
 
     return (
-        <section className="relative w-full overflow-hidden">
-            <Carousel
-                opts={{ loop: slides.length > 1, align: 'start' }}
-                setApi={setApi}
-                className="w-full"
-            >
-                <CarouselContent className="ml-0">
-                    {slides.map((slide, index) => (
-                        <CarouselItem key={slide.id} className="pl-0">
-                            <HeroSlideContent item={slide.item} priority={index === 0} />
-                        </CarouselItem>
-                    ))}
-                </CarouselContent>
-            </Carousel>
-
-            {slides.length > 1 && (
-                <div className="absolute inset-x-0 bottom-6 z-20 flex justify-center">
-                    <div className="flex items-center gap-2 rounded-full bg-black/35 px-3 py-2 backdrop-blur-sm">
+        <section className="relative w-full overflow-hidden md:px-6 md:mt-6">
+            <div className="mx-auto w-full max-w-6xl">
+                <Carousel
+                    opts={{ loop: slides.length > 1, align: 'start' }}
+                    setApi={setApi}
+                    className="w-full"
+                >
+                    <CarouselContent className="ml-0">
                         {slides.map((slide, index) => (
-                            <button
-                                key={slide.id}
-                                type="button"
-                                onClick={() => api?.scrollTo(index)}
-                                aria-label={`Go to hero slide ${index + 1}`}
-                                className={cn(
-                                    'h-2.5 w-2.5 rounded-full transition-all',
-                                    selectedIndex === index ? 'w-6 bg-white' : 'bg-white/50 hover:bg-white/80'
-                                )}
-                            />
+                            <CarouselItem key={slide.id} className="pl-0">
+                                <HeroSlideContent item={slide.item} priority={index === 0} />
+                            </CarouselItem>
                         ))}
+                    </CarouselContent>
+                </Carousel>
+
+                {slides.length > 1 && (
+                    <div className="absolute inset-x-0 bottom-6 z-20 flex justify-center">
+                        <div className="flex items-center gap-2 rounded-full bg-black/35 px-3 py-2 backdrop-blur-sm">
+                            {slides.map((slide, index) => (
+                                <button
+                                    key={slide.id}
+                                    type="button"
+                                    onClick={() => api?.scrollTo(index)}
+                                    aria-label={`Go to hero slide ${index + 1}`}
+                                    className={cn(
+                                        'h-2.5 w-2.5 rounded-full transition-all',
+                                        selectedIndex === index ? 'w-6 bg-white' : 'bg-white/50 hover:bg-white/80'
+                                    )}
+                                />
+                            ))}
+                        </div>
                     </div>
-                </div>
-            )}
+                )}
+            </div>
         </section>
     );
 }

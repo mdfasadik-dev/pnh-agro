@@ -10,9 +10,9 @@ import { ProductSearchBar } from "@/components/search/product-search-bar";
 export async function PublicNav() {
     const store = await StoreService.getFirst();
     return (
-        <div className="sticky top-0 z-50 w-full bg-background/70 backdrop-blur supports-[backdrop-filter]:bg-background/70 border-b border-foreground/10 md:border-none">
-            <nav className="relative z-20 w-full flex justify-center h-16 md:border-b md:border-foreground/10">
-                <div className="w-full max-w-6xl flex items-center gap-4 px-4 text-sm">
+        <div className="sticky top-0 z-50 w-full border-b border-foreground/10 bg-background/70 backdrop-blur supports-[backdrop-filter]:bg-background/70">
+            <nav className="relative z-20 flex h-16 w-full justify-center">
+                <div className="flex w-full max-w-6xl items-center gap-3 px-4 text-sm">
                     <div className="flex items-center gap-4 font-semibold shrink-0">
                         <CategoryMenu />
                         <Link href="/" className="flex items-center gap-2">
@@ -24,10 +24,13 @@ export async function PublicNav() {
                             ) : <span>{store?.name || 'Store'}</span>}
                         </Link>
                     </div>
-                    <div className="flex-1 hidden md:flex justify-center">
-                        <ProductSearchBar className="w-full max-w-xl" />
+                    <div className="hidden min-w-0 flex-1 justify-center md:flex">
+                        <CategoryTopBar mode="inline" />
                     </div>
-                    <div className="flex items-center gap-4 ms-auto">
+                    <div className="ms-auto flex shrink-0 items-center gap-3">
+                        <div className="hidden w-56 lg:w-72 md:block">
+                            <ProductSearchBar className="w-full" />
+                        </div>
                         <CartDrawer />
                         <ThemeSwitcher />
                     </div>
@@ -36,7 +39,6 @@ export async function PublicNav() {
             <div className="w-full md:hidden px-4 pb-3 flex justify-center">
                 <ProductSearchBar className="w-full" />
             </div>
-            <CategoryTopBar />
         </div>
     );
 }
