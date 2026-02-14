@@ -69,8 +69,10 @@ export type Database = {
           id: string
           image_url: string | null
           is_active: boolean
+          is_deleted: boolean
           name: string
           parent_id: string | null
+          sort_order: number
           slug: string | null
         }
         Insert: {
@@ -78,8 +80,10 @@ export type Database = {
           id?: string
           image_url?: string | null
           is_active?: boolean
+          is_deleted?: boolean
           name: string
           parent_id?: string | null
+          sort_order?: number
           slug?: string | null
         }
         Update: {
@@ -87,8 +91,10 @@ export type Database = {
           id?: string
           image_url?: string | null
           is_active?: boolean
+          is_deleted?: boolean
           name?: string
           parent_id?: string | null
+          sort_order?: number
           slug?: string | null
         }
         Relationships: [
@@ -772,9 +778,11 @@ export type Database = {
           details_md: string | null
           id: string
           is_active: boolean
+          is_deleted: boolean
           is_featured: boolean
           main_image_url: string | null
           name: string
+          sort_order: number
           slug: string | null
           weight_grams: number
         }
@@ -786,9 +794,11 @@ export type Database = {
           details_md?: string | null
           id?: string
           is_active?: boolean
+          is_deleted?: boolean
           is_featured?: boolean
           main_image_url?: string | null
           name: string
+          sort_order?: number
           slug?: string | null
           weight_grams?: number
         }
@@ -800,9 +810,11 @@ export type Database = {
           details_md?: string | null
           id?: string
           is_active?: boolean
+          is_deleted?: boolean
           is_featured?: boolean
           main_image_url?: string | null
           name?: string
+          sort_order?: number
           slug?: string | null
           weight_grams?: number
         }

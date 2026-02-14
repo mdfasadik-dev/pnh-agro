@@ -224,6 +224,8 @@ export async function searchPromotionLinkTargets(params?: {
             .from('categories')
             .select('id,name,slug,parent_id')
             .eq('is_active', true)
+            .eq('is_deleted', false)
+            .order('sort_order', { ascending: true })
             .order('created_at', { ascending: false })
             .limit(limitPerType);
 
@@ -253,6 +255,8 @@ export async function searchPromotionLinkTargets(params?: {
             .from('products')
             .select('id,name,slug,brand,category_id')
             .eq('is_active', true)
+            .eq('is_deleted', false)
+            .order('sort_order', { ascending: true })
             .order('created_at', { ascending: false })
             .limit(productFetchLimit);
 
@@ -280,6 +284,7 @@ export async function searchPromotionLinkTargets(params?: {
                 .from('categories')
                 .select('id')
                 .eq('is_active', true)
+                .eq('is_deleted', false)
                 .in('id', categoryIds);
             if (categoryStateError) {
                 throw new Error(categoryStateError.message);

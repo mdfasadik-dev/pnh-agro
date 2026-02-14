@@ -16,7 +16,14 @@ function buildTree(data: PublicCategory[]): TreeNode[] {
     Object.values(map).forEach(n => {
         if (n.parent_id && map[n.parent_id]) map[n.parent_id].children.push(n); else roots.push(n);
     });
-    const sortRec = (arr: TreeNode[]) => { arr.sort((a, b) => a.name.localeCompare(b.name)); arr.forEach(ch => sortRec(ch.children)); };
+    const sortRec = (arr: TreeNode[]) => {
+        arr.sort((a, b) => {
+            const orderDiff = (a.sort_order ?? 0) - (b.sort_order ?? 0);
+            if (orderDiff !== 0) return orderDiff;
+            return a.name.localeCompare(b.name);
+        });
+        arr.forEach(ch => sortRec(ch.children));
+    };
     sortRec(roots);
     return roots;
 }
@@ -104,7 +111,13 @@ export function CategoryTopBar({ mode = 'standalone', className }: CategoryTopBa
         (async () => {
             try {
                 const sb = createBrowserSupabase();
-                const { data, error } = await sb.from('categories').select('*').eq('is_active', true);
+                const { data, error } = await sb
+                    .from('categories')
+                    .select('*')
+                    .eq('is_active', true)
+                    .eq('is_deleted', false)
+                    .order('sort_order', { ascending: true })
+                    .order('created_at', { ascending: false });
                 if (error) throw error;
                 setCats(data as PublicCategory[]);
             } catch {
@@ -154,16 +167,16 @@ export function CategoryTopBar({ mode = 'standalone', className }: CategoryTopBa
     }
 
     const links = (
-        <ul className={cn("relative", mode === "inline" ? "flex items-center gap-1" : "flex flex-wrap gap-2")}>
+        <ul className={cn("relative", mode === "inline" ? "flex flex-wrap items-center justify-center gap-x-1 gap-y-1" : "flex flex-wrap gap-2")}>
             {tree.map(root => {
                 const isRootOpen = openPath[0] === root.id && root.children.length > 0;
                 return (
-                    <li key={root.id} className="relative py-2" onMouseEnter={() => handleEnterRoot(root.id)}>
+                    <li key={root.id} className={cn("relative", mode === "inline" ? "py-0.5" : "py-2")} onMouseEnter={() => handleEnterRoot(root.id)}>
                         <Link
                             href={`/categories/${root.slug || root.id}`}
                             className="text-sm font-medium px-2 py-1.5 rounded-md hover:bg-accent/60 transition-colors inline-flex items-center gap-1 whitespace-nowrap"
                         >
-                            <span className="whitespace-nowrap">{root.name}</span>
+                            <span className="whitespace-nowrap font-semibold">{root.name}</span>
                             {root.children.length > 0 && <ChevronRight className="w-3.5 h-3.5 rotate-90 text-muted-foreground" />}
                         </Link>
                         {isRootOpen && (
@@ -181,7 +194,7 @@ export function CategoryTopBar({ mode = 'standalone', className }: CategoryTopBa
 
     if (mode === "inline") {
         return (
-            <div className={cn("relative overflow-visible", className)} onMouseLeave={scheduleClose} onMouseEnter={cancelClose}>
+            <div className={cn("relative w-full overflow-visible", className)} onMouseLeave={scheduleClose} onMouseEnter={cancelClose}>
                 {links}
             </div>
         );

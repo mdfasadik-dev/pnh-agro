@@ -1,8 +1,8 @@
 "use client";
 import { Category } from "@/lib/services/categoryService";
 import { Button } from "@/components/ui/button";
-import { Pencil, Trash2, Loader2, Eye, X } from "lucide-react";
-import { useState, useEffect } from "react";
+import { Pencil, Trash2, Loader2, Eye, X, GripVertical } from "lucide-react";
+import { useState } from "react";
 import Image from 'next/image';
 import { fetchCategoryAttributes } from "../detail-actions";
 import type { Attribute } from "@/lib/services/attributeService";
@@ -14,6 +14,8 @@ export interface CategoryTableProps {
     onEdit: (c: Category) => void;
     onDelete: (id: string) => void;
     deletingIds: Set<string>;
+    onReorder?: (dragId: string, targetId: string, placement: "before" | "after") => void;
+    reorderDisabled?: boolean;
 }
 
 interface DetailData { category: Category; attributes: Attribute[] }
@@ -48,6 +50,7 @@ function DetailModal({ open, onClose, detail }: { open: boolean; onClose: () => 
                         <dl className="grid grid-cols-3 gap-y-1 text-xs">
                             <dt className="font-medium">Name</dt><dd className="col-span-2 break-words">{detail.category.name}</dd>
                             <dt className="font-medium">Slug</dt><dd className="col-span-2 break-words">{detail.category.slug || '—'}</dd>
+                            {/* <dt className="font-medium">Order</dt><dd className="col-span-2">{detail.category.sort_order ?? 0}</dd> */}
                             <dt className="font-medium">Active</dt><dd className="col-span-2">{detail.category.is_active ? 'Yes' : 'No'}</dd>
                             <dt className="font-medium">Parent</dt><dd className="col-span-2">{detail.category.parent_id ? 'Linked' : '—'}</dd>
                         </dl>
@@ -69,10 +72,12 @@ function DetailModal({ open, onClose, detail }: { open: boolean; onClose: () => 
     );
 }
 
-export function CategoryTable({ data, onEdit, onDelete, deletingIds }: CategoryTableProps) {
+export function CategoryTable({ data, onEdit, onDelete, deletingIds, onReorder, reorderDisabled = false }: CategoryTableProps) {
     const [open, setOpen] = useState(false);
     const [detail, setDetail] = useState<DetailData | null>(null);
     const [loadingId, setLoadingId] = useState<string | null>(null);
+    const [dragId, setDragId] = useState<string | null>(null);
+    const [dropTarget, setDropTarget] = useState<{ id: string; placement: "before" | "after" } | null>(null);
 
     async function openDetail(cat: Category) {
         setLoadingId(cat.id);
@@ -93,17 +98,48 @@ export function CategoryTable({ data, onEdit, onDelete, deletingIds }: CategoryT
             <table className="w-full text-sm">
                 <thead className="bg-accent">
                     <tr>
+                        <th className="w-8" />
                         <th className="text-left px-3 py-2 font-medium">Image</th>
                         <th className="text-left px-3 py-2 font-medium">Name</th>
                         <th className="text-left px-3 py-2 font-medium">Slug</th>
                         <th className="text-left px-3 py-2 font-medium">Parent</th>
+                        {/* <th className="text-left px-3 py-2 font-medium">Order</th> */}
                         <th className="text-left px-3 py-2 font-medium">Status</th>
                         <th className="w-32" />
                     </tr>
                 </thead>
                 <tbody>
                     {data.map(row => (
-                        <tr key={row.id} className="border-t">
+                        <tr
+                            key={row.id}
+                            className={`border-t ${dragId === row.id ? "opacity-60" : ""} ${dropTarget?.id === row.id && dropTarget.placement === "before" ? "border-t-2 border-t-primary" : ""} ${dropTarget?.id === row.id && dropTarget.placement === "after" ? "border-b-2 border-b-primary" : ""}`}
+                            draggable={!reorderDisabled}
+                            onDragStart={() => setDragId(row.id)}
+                            onDragEnd={() => {
+                                setDragId(null);
+                                setDropTarget(null);
+                            }}
+                            onDragOver={(event) => {
+                                if (reorderDisabled || !dragId || dragId === row.id) return;
+                                event.preventDefault();
+                                const rect = event.currentTarget.getBoundingClientRect();
+                                const placement = event.clientY < rect.top + rect.height / 2 ? "before" : "after";
+                                setDropTarget({ id: row.id, placement });
+                            }}
+                            onDrop={(event) => {
+                                event.preventDefault();
+                                if (reorderDisabled || !dragId || dragId === row.id || !onReorder) return;
+                                const placement = dropTarget?.id === row.id ? dropTarget.placement : "before";
+                                onReorder(dragId, row.id, placement);
+                                setDragId(null);
+                                setDropTarget(null);
+                            }}
+                        >
+                            <td className="px-1 py-2 text-muted-foreground">
+                                <span className={`inline-flex items-center justify-center ${reorderDisabled ? "cursor-not-allowed opacity-40" : "cursor-grab"}`} title="Drag to reorder">
+                                    <GripVertical className="h-4 w-4" />
+                                </span>
+                            </td>
                             <td className="px-3 py-2">
                                 {(row as any).image_url ? (
                                     <div className="relative w-10 h-10 rounded border bg-muted overflow-hidden">
@@ -122,6 +158,7 @@ export function CategoryTable({ data, onEdit, onDelete, deletingIds }: CategoryT
                             <td className="px-3 py-2 font-medium">{row.name}</td>
                             <td className="px-3 py-2 text-muted-foreground">{row.slug ?? "—"}</td>
                             <td className="px-3 py-2 text-muted-foreground">{data.find(p => p.id === row.parent_id)?.name ?? "—"}</td>
+                            {/* <td className="px-3 py-2 text-muted-foreground">{row.sort_order ?? 0}</td> */}
                             <td className="px-3 py-2">
                                 {row.is_active ? <span className="text-green-600 text-xs font-semibold">ACTIVE</span> : <span className="text-muted-foreground text-xs">INACTIVE</span>}
                             </td>

@@ -8,13 +8,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [categoriesResponse, productsResponse, contentPagesResponse] = await Promise.all([
     supabase
       .from("categories")
-      .select("id,slug,created_at,is_active")
+      .select("id,slug,created_at,is_active,is_deleted")
       .eq("is_active", true)
+      .eq("is_deleted", false)
+      .order("sort_order", { ascending: true })
       .order("created_at", { ascending: false }),
     supabase
       .from("products")
-      .select("id,slug,created_at,is_active,category_id")
+      .select("id,slug,created_at,is_active,is_deleted,category_id")
       .eq("is_active", true)
+      .eq("is_deleted", false)
+      .order("sort_order", { ascending: true })
       .order("created_at", { ascending: false }),
     supabase
       .from("content_pages")

@@ -68,7 +68,7 @@ export class CheckoutService {
         const supabase = await createAdminClient();
         const { data: products, error: productsError } = await supabase
             .from("products")
-            .select("id,name,is_active,category_id")
+            .select("id,name,is_active,is_deleted,category_id")
             .in("id", productIds);
 
         if (productsError) throw productsError;
@@ -78,7 +78,7 @@ export class CheckoutService {
         const unavailableNames = new Set<string>();
         for (const id of productIds) {
             const product = productMap.get(id);
-            if (!product || !product.is_active) {
+            if (!product || !product.is_active || product.is_deleted) {
                 unavailableNames.add(product?.name || id);
             }
         }
@@ -96,6 +96,7 @@ export class CheckoutService {
                 .from("categories")
                 .select("id")
                 .eq("is_active", true)
+                .eq("is_deleted", false)
                 .in("id", categoryIds);
             if (categoriesError) throw categoriesError;
 
@@ -112,7 +113,7 @@ export class CheckoutService {
             const head = list.slice(0, 3).join(", ");
             const suffix = list.length > 3 ? ` and ${list.length - 3} more` : "";
             throw new Error(
-                `Some items in your cart are unavailable (inactive product/category): ${head}${suffix}. Please remove them and try again.`
+                `Some items in your cart are unavailable (inactive/deleted product or category): ${head}${suffix}. Please remove them and try again.`
             );
         }
     }
@@ -125,6 +126,7 @@ export class CheckoutService {
         const { data, error } = await supabase
             .from("products")
             .select("id,weight_grams")
+            .eq("is_deleted", false)
             .in("id", productIds);
 
         if (error) throw error;

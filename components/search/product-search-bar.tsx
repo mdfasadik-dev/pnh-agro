@@ -63,7 +63,9 @@ export function ProductSearchBar({
                 .from("products")
                 .select("id,name,slug,brand,category_id")
                 .eq("is_active", true)
+                .eq("is_deleted", false)
                 .or(`name.ilike.%${sanitizedTerm}%,slug.ilike.%${sanitizedTerm}%,brand.ilike.%${sanitizedTerm}%`)
+                .order("sort_order", { ascending: true })
                 .order("created_at", { ascending: false })
                 .limit(Math.max(maxResults * 3, maxResults));
             if (cancelled) return;
@@ -84,6 +86,7 @@ export function ProductSearchBar({
                         .from("categories")
                         .select("id")
                         .eq("is_active", true)
+                        .eq("is_deleted", false)
                         .in("id", categoryIds);
                     if (categoryError) {
                         console.error("Category visibility check failed", categoryError);

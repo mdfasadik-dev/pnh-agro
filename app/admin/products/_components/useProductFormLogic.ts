@@ -13,6 +13,7 @@ export interface ProductFormValues {
     category_id: string;
     brand: string | null;
     weight_grams: number;
+    sort_order?: number;
     is_active: boolean;
     is_featured: boolean;
     main_image_url: string | null;
@@ -216,6 +217,7 @@ export function useProductFormLogic(editing: ProductWithImages | null, categorie
                 category_id: fd.get('category_id') as string,
                 brand: (fd.get('brand') as string) || null,
                 weight_grams: Number(fd.get('weight_grams') || 0),
+                sort_order: editingRef?.sort_order,
                 is_active: fd.get('is_active') === 'on',
                 is_featured: fd.get('is_featured') === 'on',
                 main_image_url: finalImageUrl,

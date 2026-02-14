@@ -8,6 +8,8 @@ async function fetchParentCategories() {
         .select('id,name,slug,image_url')
         .is('parent_id', null)
         .eq('is_active', true)
+        .eq('is_deleted', false)
+        .order('sort_order', { ascending: true })
         .order('created_at', { ascending: false });
     return data || [];
 }

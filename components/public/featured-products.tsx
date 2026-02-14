@@ -15,6 +15,8 @@ export async function FeaturedProducts({ limit = 8 }: Props) {
         .select("*")
         .eq("is_featured", true)
         .eq("is_active", true)
+        .eq("is_deleted", false)
+        .order("sort_order", { ascending: true })
         .order("created_at", { ascending: false })
         .limit(prefetchLimit);
     if (error) {
@@ -36,6 +38,7 @@ export async function FeaturedProducts({ limit = 8 }: Props) {
             .from("categories")
             .select("id")
             .eq("is_active", true)
+            .eq("is_deleted", false)
             .in("id", categoryIds);
         activeCategorySet = new Set((activeCategories || []).map((category) => category.id));
     }

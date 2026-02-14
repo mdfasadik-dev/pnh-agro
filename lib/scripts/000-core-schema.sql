@@ -12,11 +12,14 @@ CREATE TABLE categories (
   name         TEXT NOT NULL,
   image_url    TEXT,
   slug         TEXT UNIQUE,
+  sort_order   INTEGER NOT NULL DEFAULT 0,
   is_active    BOOLEAN NOT NULL DEFAULT TRUE,
+  is_deleted   BOOLEAN NOT NULL DEFAULT FALSE,
   created_at   TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
 CREATE INDEX idx_categories_parent ON categories(parent_id);
+CREATE INDEX idx_categories_listing ON categories(is_deleted, is_active, sort_order, created_at);
 
 -- ============================================
 -- 2) Dynamic attributes (assignable to categories)
@@ -58,7 +61,9 @@ CREATE TABLE products (
   weight_grams   NUMERIC(12,3) NOT NULL DEFAULT 0
                    CHECK (weight_grams >= 0),
   main_image_url TEXT,
+  sort_order     INTEGER NOT NULL DEFAULT 0,
   is_active      BOOLEAN NOT NULL DEFAULT TRUE,
+  is_deleted     BOOLEAN NOT NULL DEFAULT FALSE,
   is_featured    BOOLEAN NOT NULL DEFAULT FALSE,
 
   -- Rich content fields
@@ -68,6 +73,7 @@ CREATE TABLE products (
 
 CREATE INDEX idx_products_category ON products(category_id);
 CREATE INDEX idx_products_weight ON products(weight_grams);
+CREATE INDEX idx_products_listing ON products(is_deleted, is_active, is_featured, sort_order, created_at);
 
 -- Product image gallery (multiple images per product)
 CREATE TABLE product_images (

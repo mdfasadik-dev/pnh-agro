@@ -268,7 +268,7 @@ export function ProductForm({ categories, attributes, editing, isPending, onCrea
                                                     />
                                                 </div>
                                                 <p className="mt-2 text-[10px] text-muted-foreground">
-                                                    Pick a custom color if the preset palette doesn't match.
+                                                    Pick a custom color if the preset palette doesn&apos;t match.
                                                 </p>
                                             </div>
                                         </PopoverContent>

@@ -21,11 +21,11 @@ export class DashboardService {
 
         // Run counts in parallel
         const [products, orders, customersCount, inventory, categories, attributes] = await Promise.all([
-            supabase.from("products").select("*", { count: "exact", head: true }),
+            supabase.from("products").select("*", { count: "exact", head: true }).eq("is_deleted", false),
             supabase.from("orders").select("*", { count: "exact", head: true }),
             CustomerService.countUnique().catch(() => 0),
             supabase.from("inventory").select("*", { count: "exact", head: true }),
-            supabase.from("categories").select("*", { count: "exact", head: true }),
+            supabase.from("categories").select("*", { count: "exact", head: true }).eq("is_deleted", false),
             supabase.from("attributes").select("*", { count: "exact", head: true }),
         ]);
 

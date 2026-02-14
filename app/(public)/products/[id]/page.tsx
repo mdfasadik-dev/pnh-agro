@@ -22,6 +22,7 @@ async function fetchProduct(idOrSlug: string) {
         .select("*")
         .eq("slug", idOrSlug)
         .eq("is_active", true)
+        .eq("is_deleted", false)
         .maybeSingle();
 
     let product: Tables<"products"> | null = bySlug;
@@ -31,6 +32,7 @@ async function fetchProduct(idOrSlug: string) {
             .select("*")
             .eq("id", idOrSlug)
             .eq("is_active", true)
+            .eq("is_deleted", false)
             .maybeSingle();
         product = byId;
     }
@@ -39,10 +41,10 @@ async function fetchProduct(idOrSlug: string) {
     if (product.category_id) {
         const { data: categoryState } = await supabase
             .from("categories")
-            .select("id,is_active")
+            .select("id,is_active,is_deleted")
             .eq("id", product.category_id)
             .maybeSingle();
-        if (!categoryState || !categoryState.is_active) {
+        if (!categoryState || !categoryState.is_active || categoryState.is_deleted) {
             return null;
         }
     }
@@ -173,7 +175,10 @@ async function fetchProduct(idOrSlug: string) {
         const { data: allCats } = await supabase
             .from("categories")
             .select("id,parent_id,name,slug")
-            .eq("is_active", true);
+            .eq("is_active", true)
+            .eq("is_deleted", false)
+            .order("sort_order", { ascending: true })
+            .order("created_at", { ascending: true });
 
         if (allCats && allCats.length) {
             const map = new Map<string, CategoryBrief>();
@@ -220,8 +225,10 @@ export async function generateStaticParams(): Promise<RouteParams[]> {
         const supabase = createPublicClient();
         const { data } = await supabase
             .from("products")
-            .select("id,slug,is_active,category_id")
+            .select("id,slug,is_active,is_deleted,category_id")
             .eq("is_active", true)
+            .eq("is_deleted", false)
+            .order("sort_order", { ascending: true })
             .order("created_at", { ascending: false });
 
         const rows = data || [];
@@ -235,6 +242,7 @@ export async function generateStaticParams(): Promise<RouteParams[]> {
                 .from("categories")
                 .select("id")
                 .eq("is_active", true)
+                .eq("is_deleted", false)
                 .in("id", categoryIds);
             activeCategorySet = new Set((activeCategories || []).map((category) => category.id));
         }

@@ -38,6 +38,7 @@ export function ProductDetailModal({ detail, onClose }: ProductDetailModalProps)
                             <dt className="font-medium">Name</dt><dd className="col-span-2 break-words">{detail.name}</dd>
                             <dt className="font-medium">Slug</dt><dd className="col-span-2 break-words">{detail.slug || '—'}</dd>
                             <dt className="font-medium">Brand</dt><dd className="col-span-2">{detail.brand || '—'}</dd>
+                            <dt className="font-medium">Order</dt><dd className="col-span-2">{detail.sort_order ?? 0}</dd>
                             <dt className="font-medium">Active</dt><dd className="col-span-2">{detail.is_active ? 'Yes' : 'No'}</dd>
                             <dt className="font-medium">Featured</dt><dd className="col-span-2">{detail.is_featured ? 'Yes' : 'No'}</dd>
                             <dt className="font-medium">Badge</dt>

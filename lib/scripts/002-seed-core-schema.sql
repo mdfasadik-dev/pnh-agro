@@ -39,58 +39,58 @@ new_attributes AS (
 -- 3) Insert Categories (Min 10, with deep nesting)
 -- ============================================
 cat_l1 AS (
-  INSERT INTO categories (name, slug, image_url, is_active)
+  INSERT INTO categories (name, slug, image_url, is_active, sort_order, is_deleted)
   VALUES
-    ('Electronics', 'electronics', NULL, TRUE),
-    ('Apparel', 'apparel', NULL, TRUE),
-    ('Books', 'books', NULL, TRUE),
-    ('Groceries', 'groceries', NULL, TRUE),
-    ('Home & Kitchen', 'home-kitchen', NULL, TRUE),
-    ('Furniture', 'furniture', NULL, TRUE), -- Edge Case: Empty category
-    ('Inactive Main Category', 'inactive-main', NULL, FALSE) -- Edge Case: Inactive
+    ('Electronics', 'electronics', NULL, TRUE, 0, FALSE),
+    ('Apparel', 'apparel', NULL, TRUE, 1, FALSE),
+    ('Books', 'books', NULL, TRUE, 2, FALSE),
+    ('Groceries', 'groceries', NULL, TRUE, 3, FALSE),
+    ('Home & Kitchen', 'home-kitchen', NULL, TRUE, 4, FALSE),
+    ('Furniture', 'furniture', NULL, TRUE, 5, FALSE), -- Edge Case: Empty category
+    ('Inactive Main Category', 'inactive-main', NULL, FALSE, 6, FALSE) -- Edge Case: Inactive
   RETURNING id, slug
 ),
 cat_l2 AS (
-  INSERT INTO categories (parent_id, name, slug, image_url, is_active)
+  INSERT INTO categories (parent_id, name, slug, image_url, is_active, sort_order, is_deleted)
   VALUES
     -- Electronics Children
-    ((SELECT id FROM cat_l1 WHERE slug = 'electronics'), 'Computers & Laptops', 'computers-laptops', NULL, TRUE),
-    ((SELECT id FROM cat_l1 WHERE slug = 'electronics'), 'Mobile Phones', 'mobile-phones', NULL, TRUE),
+    ((SELECT id FROM cat_l1 WHERE slug = 'electronics'), 'Computers & Laptops', 'computers-laptops', NULL, TRUE, 0, FALSE),
+    ((SELECT id FROM cat_l1 WHERE slug = 'electronics'), 'Mobile Phones', 'mobile-phones', NULL, TRUE, 1, FALSE),
     -- Apparel Children
-    ((SELECT id FROM cat_l1 WHERE slug = 'apparel'), 'Mens Fashion', 'mens-fashion', NULL, TRUE),
-    ((SELECT id FROM cat_l1 WHERE slug = 'apparel'), 'Womens Fashion', 'womens-fashion', NULL, TRUE),
+    ((SELECT id FROM cat_l1 WHERE slug = 'apparel'), 'Mens Fashion', 'mens-fashion', NULL, TRUE, 0, FALSE),
+    ((SELECT id FROM cat_l1 WHERE slug = 'apparel'), 'Womens Fashion', 'womens-fashion', NULL, TRUE, 1, FALSE),
     -- Books Children
-    ((SELECT id FROM cat_l1 WHERE slug = 'books'), 'Fiction', 'fiction', NULL, TRUE),
-    ((SELECT id FROM cat_l1 WHERE slug = 'books'), 'Non-Fiction', 'non-fiction', NULL, TRUE),
+    ((SELECT id FROM cat_l1 WHERE slug = 'books'), 'Fiction', 'fiction', NULL, TRUE, 0, FALSE),
+    ((SELECT id FROM cat_l1 WHERE slug = 'books'), 'Non-Fiction', 'non-fiction', NULL, TRUE, 1, FALSE),
     -- Groceries Children
-    ((SELECT id FROM cat_l1 WHERE slug = 'groceries'), 'Fruits & Vegetables', 'fresh-produce', NULL, TRUE),
-    ((SELECT id FROM cat_l1 WHERE slug = 'groceries'), 'Pantry Staples', 'pantry-staples', NULL, TRUE),
+    ((SELECT id FROM cat_l1 WHERE slug = 'groceries'), 'Fruits & Vegetables', 'fresh-produce', NULL, TRUE, 0, FALSE),
+    ((SELECT id FROM cat_l1 WHERE slug = 'groceries'), 'Pantry Staples', 'pantry-staples', NULL, TRUE, 1, FALSE),
     -- Home & Kitchen Children
-    ((SELECT id FROM cat_l1 WHERE slug = 'home-kitchen'), 'Appliances', 'appliances', NULL, TRUE),
+    ((SELECT id FROM cat_l1 WHERE slug = 'home-kitchen'), 'Appliances', 'appliances', NULL, TRUE, 0, FALSE),
     -- Inactive Category Child
-    ((SELECT id FROM cat_l1 WHERE slug = 'inactive-main'), 'Obsolete Tech', 'obsolete-tech', NULL, FALSE)
+    ((SELECT id FROM cat_l1 WHERE slug = 'inactive-main'), 'Obsolete Tech', 'obsolete-tech', NULL, FALSE, 0, FALSE)
   RETURNING id, slug
 ),
 cat_l3 AS (
-  INSERT INTO categories (parent_id, name, slug, image_url, is_active)
+  INSERT INTO categories (parent_id, name, slug, image_url, is_active, sort_order, is_deleted)
   VALUES
     -- Computers Children
-    ((SELECT id FROM cat_l2 WHERE slug = 'computers-laptops'), 'Laptops', 'laptops', NULL, TRUE),
-    ((SELECT id FROM cat_l2 WHERE slug = 'computers-laptops'), 'Desktops', 'desktops', NULL, TRUE),
-    ((SELECT id FROM cat_l2 WHERE slug = 'computers-laptops'), 'Accessories', 'computer-accessories', NULL, TRUE),
+    ((SELECT id FROM cat_l2 WHERE slug = 'computers-laptops'), 'Laptops', 'laptops', NULL, TRUE, 0, FALSE),
+    ((SELECT id FROM cat_l2 WHERE slug = 'computers-laptops'), 'Desktops', 'desktops', NULL, TRUE, 1, FALSE),
+    ((SELECT id FROM cat_l2 WHERE slug = 'computers-laptops'), 'Accessories', 'computer-accessories', NULL, TRUE, 2, FALSE),
     -- Mobile Phones Children
-    ((SELECT id FROM cat_l2 WHERE slug = 'mobile-phones'), 'Smartphones', 'smartphones', NULL, TRUE),
-    ((SELECT id FROM cat_l2 WHERE slug = 'mobile-phones'), 'Feature Phones', 'feature-phones', NULL, TRUE),
+    ((SELECT id FROM cat_l2 WHERE slug = 'mobile-phones'), 'Smartphones', 'smartphones', NULL, TRUE, 0, FALSE),
+    ((SELECT id FROM cat_l2 WHERE slug = 'mobile-phones'), 'Feature Phones', 'feature-phones', NULL, TRUE, 1, FALSE),
     -- Mens Fashion Children
-    ((SELECT id FROM cat_l2 WHERE slug = 'mens-fashion'), 'T-Shirts', 'mens-tshirts', NULL, TRUE),
-    ((SELECT id FROM cat_l2 WHERE slug = 'mens-fashion'), 'Pants & Jeans', 'mens-pants', NULL, TRUE)
+    ((SELECT id FROM cat_l2 WHERE slug = 'mens-fashion'), 'T-Shirts', 'mens-tshirts', NULL, TRUE, 0, FALSE),
+    ((SELECT id FROM cat_l2 WHERE slug = 'mens-fashion'), 'Pants & Jeans', 'mens-pants', NULL, TRUE, 1, FALSE)
   RETURNING id, slug
 ),
 -- Edge Case: Level 4 nesting
 cat_l4 AS (
-  INSERT INTO categories (parent_id, name, slug, image_url, is_active)
+  INSERT INTO categories (parent_id, name, slug, image_url, is_active, sort_order, is_deleted)
   VALUES
-    ((SELECT id FROM cat_l3 WHERE slug = 'computer-accessories'), 'Keyboards & Mice', 'keyboards-mice', NULL, TRUE)
+    ((SELECT id FROM cat_l3 WHERE slug = 'computer-accessories'), 'Keyboards & Mice', 'keyboards-mice', NULL, TRUE, 0, FALSE)
   RETURNING id, slug
 ),
 
@@ -149,42 +149,60 @@ new_products AS (
     is_active,
     is_featured,
     details_md,
-    weight_grams
+    weight_grams,
+    sort_order,
+    is_deleted
   )
   VALUES
-    -- Laptops (3)
-    ((SELECT id FROM cat_l3 WHERE slug = 'laptops'), 'ProBook X1', 'probook-x1', 'A powerful 14-inch laptop.', 'TechCo', NULL, TRUE, TRUE, '# ProBook X1\n* 16GB RAM\n* Intel i7', 1400),
-    ((SELECT id FROM cat_l3 WHERE slug = 'laptops'), 'ZenAir Slim', 'zenair-slim', 'Ultra-thin laptop.', 'Zenith', NULL, FALSE, FALSE, '# ZenAir Slim\nInactive product.', 1200), -- Edge Case: Inactive
-    ((SELECT id FROM cat_l3 WHERE slug = 'laptops'), 'EcoBook Lite', 'ecobook-lite', 'Eco-friendly, recycled materials.', 'GreenPC', NULL, TRUE, FALSE, '# EcoBook Lite\n* 8GB RAM', 1350),
+    -- Laptops (19)
+    ((SELECT id FROM cat_l3 WHERE slug = 'laptops'), 'ProBook X1', 'probook-x1', 'A powerful 14-inch laptop.', 'TechCo', NULL, TRUE, TRUE, '# ProBook X1\n* 16GB RAM\n* Intel i7', 1400, 0, FALSE),
+    ((SELECT id FROM cat_l3 WHERE slug = 'laptops'), 'ZenAir Slim', 'zenair-slim', 'Ultra-thin laptop.', 'Zenith', NULL, FALSE, FALSE, '# ZenAir Slim\nInactive product.', 1200, 1, FALSE), -- Edge Case: Inactive
+    ((SELECT id FROM cat_l3 WHERE slug = 'laptops'), 'EcoBook Lite', 'ecobook-lite', 'Eco-friendly, recycled materials.', 'GreenPC', NULL, TRUE, FALSE, '# EcoBook Lite\n* 8GB RAM', 1350, 2, FALSE),
+    ((SELECT id FROM cat_l3 WHERE slug = 'laptops'), 'AeroBook 13', 'aerobook-13', 'Compact 13-inch ultrabook.', 'SkyTech', NULL, TRUE, FALSE, '# AeroBook 13\n* 8GB RAM\n* 256GB SSD', 1180, 3, FALSE),
+    ((SELECT id FROM cat_l3 WHERE slug = 'laptops'), 'AeroBook 15', 'aerobook-15', 'Balanced 15-inch performance laptop.', 'SkyTech', NULL, TRUE, FALSE, '# AeroBook 15\n* 16GB RAM\n* 512GB SSD', 1420, 4, FALSE),
+    ((SELECT id FROM cat_l3 WHERE slug = 'laptops'), 'WorkMate 14', 'workmate-14', 'Business-ready laptop with long battery life.', 'OfficePro', NULL, TRUE, FALSE, '# WorkMate 14\n* Fingerprint unlock', 1360, 5, FALSE),
+    ((SELECT id FROM cat_l3 WHERE slug = 'laptops'), 'WorkMate 16', 'workmate-16', 'Large-screen productivity machine.', 'OfficePro', NULL, TRUE, FALSE, '# WorkMate 16\n* Numeric keypad', 1590, 6, FALSE),
+    ((SELECT id FROM cat_l3 WHERE slug = 'laptops'), 'DevStation Lite', 'devstation-lite', 'Entry developer laptop.', 'CodeGear', NULL, TRUE, FALSE, '# DevStation Lite\n* 16GB RAM', 1480, 7, FALSE),
+    ((SELECT id FROM cat_l3 WHERE slug = 'laptops'), 'DevStation Pro', 'devstation-pro', 'High-memory developer laptop.', 'CodeGear', NULL, TRUE, FALSE, '# DevStation Pro\n* 32GB RAM', 1710, 8, FALSE),
+    ((SELECT id FROM cat_l3 WHERE slug = 'laptops'), 'StudentBook S1', 'studentbook-s1', 'Affordable daily laptop for study.', 'EduTech', NULL, TRUE, FALSE, '# StudentBook S1\n* Budget friendly', 1290, 9, FALSE),
+    ((SELECT id FROM cat_l3 WHERE slug = 'laptops'), 'StudentBook S2', 'studentbook-s2', 'Improved student laptop with SSD.', 'EduTech', NULL, TRUE, FALSE, '# StudentBook S2\n* Fast boot', 1310, 10, FALSE),
+    ((SELECT id FROM cat_l3 WHERE slug = 'laptops'), 'UltraNote 14', 'ultranote-14', 'Premium lightweight notebook.', 'Lumina', NULL, TRUE, FALSE, '# UltraNote 14\n* Aluminum body', 1120, 11, FALSE),
+    ((SELECT id FROM cat_l3 WHERE slug = 'laptops'), 'UltraNote 16', 'ultranote-16', 'Premium 16-inch notebook.', 'Lumina', NULL, TRUE, FALSE, '# UltraNote 16\n* 120Hz display', 1540, 12, FALSE),
+    ((SELECT id FROM cat_l3 WHERE slug = 'laptops'), 'TravelBook Air', 'travelbook-air', 'Ultra-portable travel companion.', 'Roam', NULL, TRUE, FALSE, '# TravelBook Air\n* USB-C charging', 1050, 13, FALSE),
+    ((SELECT id FROM cat_l3 WHERE slug = 'laptops'), 'TravelBook Plus', 'travelbook-plus', 'Portable laptop with larger battery.', 'Roam', NULL, TRUE, FALSE, '# TravelBook Plus\n* All-day battery', 1270, 14, FALSE),
+    ((SELECT id FROM cat_l3 WHERE slug = 'laptops'), 'CreatorBook C1', 'creatorbook-c1', 'Laptop tuned for creators.', 'PixelForge', NULL, TRUE, FALSE, '# CreatorBook C1\n* Color-accurate panel', 1650, 15, FALSE),
+    ((SELECT id FROM cat_l3 WHERE slug = 'laptops'), 'CreatorBook C2', 'creatorbook-c2', 'Creator laptop with stronger GPU.', 'PixelForge', NULL, TRUE, FALSE, '# CreatorBook C2\n* Dedicated graphics', 1760, 16, FALSE),
+    ((SELECT id FROM cat_l3 WHERE slug = 'laptops'), 'BusinessBook B1', 'businessbook-b1', 'Secure enterprise laptop.', 'CoreBiz', NULL, TRUE, FALSE, '# BusinessBook B1\n* TPM and secure boot', 1490, 17, FALSE),
+    ((SELECT id FROM cat_l3 WHERE slug = 'laptops'), 'BusinessBook B2', 'businessbook-b2', 'Enterprise laptop with LTE option.', 'CoreBiz', NULL, TRUE, FALSE, '# BusinessBook B2\n* Optional LTE', 1530, 18, FALSE),
     -- Desktops (1)
-    ((SELECT id FROM cat_l3 WHERE slug = 'desktops'), 'Gamer''s Rig XG', 'gamer-rig-xg', 'High-end gaming desktop.', 'Apex', NULL, TRUE, TRUE, '# Gamer''s Rig\n* 32GB RAM\n* RTX 4080', 15500),
+    ((SELECT id FROM cat_l3 WHERE slug = 'desktops'), 'Gamer''s Rig XG', 'gamer-rig-xg', 'High-end gaming desktop.', 'Apex', NULL, TRUE, TRUE, '# Gamer''s Rig\n* 32GB RAM\n* RTX 4080', 15500, 0, FALSE),
     -- Keyboards & Mice (2)
-    ((SELECT id FROM cat_l4 WHERE slug = 'keyboards-mice'), 'Mechanical Keyboard K8', 'mech-keyboard-k8', 'Clicky and responsive.', 'ClickClack', NULL, TRUE, FALSE, '## K8\nAvailable in 3 switch types.', 900),
-    ((SELECT id FROM cat_l4 WHERE slug = 'keyboards-mice'), 'ErgoMouse M5', 'ergo-mouse-m5', 'Vertical ergonomic mouse.', 'ComfortGrip', NULL, TRUE, FALSE, '## M5\nAll-day comfort.', 120), -- Edge Case: No variants
+    ((SELECT id FROM cat_l4 WHERE slug = 'keyboards-mice'), 'Mechanical Keyboard K8', 'mech-keyboard-k8', 'Clicky and responsive.', 'ClickClack', NULL, TRUE, FALSE, '## K8\nAvailable in 3 switch types.', 900, 0, FALSE),
+    ((SELECT id FROM cat_l4 WHERE slug = 'keyboards-mice'), 'ErgoMouse M5', 'ergo-mouse-m5', 'Vertical ergonomic mouse.', 'ComfortGrip', NULL, TRUE, FALSE, '## M5\nAll-day comfort.', 120, 1, FALSE), -- Edge Case: No variants
     -- Smartphones (3)
-    ((SELECT id FROM cat_l3 WHERE slug = 'smartphones'), 'Pixel 9', 'pixel-9', 'The latest AI smartphone.', 'Google', NULL, TRUE, TRUE, '# Pixel 9\n* Tensor G4', 198),
-    ((SELECT id FROM cat_l3 WHERE slug = 'smartphones'), 'iPhone 17', 'iphone-17', 'The new iPhone.', 'Apple', NULL, TRUE, FALSE, '# iPhone 17\n* A19 Bionic', 205),
+    ((SELECT id FROM cat_l3 WHERE slug = 'smartphones'), 'Pixel 9', 'pixel-9', 'The latest AI smartphone.', 'Google', NULL, TRUE, TRUE, '# Pixel 9\n* Tensor G4', 198, 0, FALSE),
+    ((SELECT id FROM cat_l3 WHERE slug = 'smartphones'), 'iPhone 17', 'iphone-17', 'The new iPhone.', 'Apple', NULL, TRUE, FALSE, '# iPhone 17\n* A19 Bionic', 205, 1, FALSE),
     -- Feature Phones (1)
-    ((SELECT id FROM cat_l3 WHERE slug = 'feature-phones'), 'Nokia 1100', 'nokia-1100', 'Classic and durable.', 'Nokia', NULL, TRUE, FALSE, 'Snake included.', 95), -- Single variant
+    ((SELECT id FROM cat_l3 WHERE slug = 'feature-phones'), 'Nokia 1100', 'nokia-1100', 'Classic and durable.', 'Nokia', NULL, TRUE, FALSE, 'Snake included.', 95, 0, FALSE), -- Single variant
     -- T-Shirts (2)
-    ((SELECT id FROM cat_l3 WHERE slug = 'mens-tshirts'), 'Classic Crew Neck T-Shirt', 'classic-crew-tshirt', '100% cotton T-shirt.', 'FashionBrand', NULL, TRUE, FALSE, '# Classic Crew\n* 100% Cotton', 220),
-    ((SELECT id FROM cat_l3 WHERE slug = 'mens-tshirts'), 'V-Neck Basic', 'v-neck-basic', 'Soft modal blend.', 'FashionBrand', NULL, TRUE, FALSE, '# V-Neck\n* Modal/Cotton blend', 210),
+    ((SELECT id FROM cat_l3 WHERE slug = 'mens-tshirts'), 'Classic Crew Neck T-Shirt', 'classic-crew-tshirt', '100% cotton T-shirt.', 'FashionBrand', NULL, TRUE, FALSE, '# Classic Crew\n* 100% Cotton', 220, 0, FALSE),
+    ((SELECT id FROM cat_l3 WHERE slug = 'mens-tshirts'), 'V-Neck Basic', 'v-neck-basic', 'Soft modal blend.', 'FashionBrand', NULL, TRUE, FALSE, '# V-Neck\n* Modal/Cotton blend', 210, 1, FALSE),
     -- Pants (2)
-    ((SELECT id FROM cat_l3 WHERE slug = 'mens-pants'), 'Slim Fit Denim', 'slim-fit-denim', 'Stretch denim jeans.', 'DenimCo', NULL, TRUE, FALSE, '# Slim Fit\n* 98% Cotton, 2% Elastane', 450),
-    ((SELECT id FROM cat_l3 WHERE slug = 'mens-pants'), 'Cargo Shorts', 'cargo-shorts', 'Cotton twill cargo shorts.', 'OutdoorCo', NULL, TRUE, FALSE, '# Cargo Shorts\n* 6 pockets', 380),
+    ((SELECT id FROM cat_l3 WHERE slug = 'mens-pants'), 'Slim Fit Denim', 'slim-fit-denim', 'Stretch denim jeans.', 'DenimCo', NULL, TRUE, FALSE, '# Slim Fit\n* 98% Cotton, 2% Elastane', 450, 0, FALSE),
+    ((SELECT id FROM cat_l3 WHERE slug = 'mens-pants'), 'Cargo Shorts', 'cargo-shorts', 'Cotton twill cargo shorts.', 'OutdoorCo', NULL, TRUE, FALSE, '# Cargo Shorts\n* 6 pockets', 380, 1, FALSE),
     -- Books (3)
-    ((SELECT id FROM cat_l2 WHERE slug = 'fiction'), 'The SQL Mystery', 'sql-mystery', 'A thrilling novel about data.', 'DB Books', NULL, TRUE, FALSE, 'Who dunnit?', 320), -- Edge Case: No variants
-    ((SELECT id FROM cat_l2 WHERE slug = 'fiction'), 'Dune Chronicles', 'dune-chronicles', 'The classic sci-fi saga.', 'Penguin', NULL, TRUE, TRUE, 'Box set.', 640), -- Edge Case: No variants
-    ((SELECT id FROM cat_l2 WHERE slug = 'non-fiction'), 'A Brief History of Code', 'history-of-code', 'From Ada to AI.', 'TechPress', NULL, TRUE, FALSE, 'Must-read for devs.', 520), -- Edge Case: No variants
+    ((SELECT id FROM cat_l2 WHERE slug = 'fiction'), 'The SQL Mystery', 'sql-mystery', 'A thrilling novel about data.', 'DB Books', NULL, TRUE, FALSE, 'Who dunnit?', 320, 0, FALSE), -- Edge Case: No variants
+    ((SELECT id FROM cat_l2 WHERE slug = 'fiction'), 'Dune Chronicles', 'dune-chronicles', 'The classic sci-fi saga.', 'Penguin', NULL, TRUE, TRUE, 'Box set.', 640, 1, FALSE), -- Edge Case: No variants
+    ((SELECT id FROM cat_l2 WHERE slug = 'non-fiction'), 'A Brief History of Code', 'history-of-code', 'From Ada to AI.', 'TechPress', NULL, TRUE, FALSE, 'Must-read for devs.', 520, 0, FALSE), -- Edge Case: No variants
     -- Groceries (4)
-    ((SELECT id FROM cat_l2 WHERE slug = 'fresh-produce'), 'Organic Apples', 'organic-apples', 'Fresh Himachali Apples.', 'FarmFresh', NULL, TRUE, FALSE, 'Sold by kg.', 1000), -- Edge Case: No variants, unit=kg
-    ((SELECT id FROM cat_l2 WHERE slug = 'fresh-produce'), 'Local Potatoes', 'local-potatoes', 'Fresh from Bogura.', 'LocalFarm', NULL, TRUE, FALSE, 'Sold by kg.', 500), -- Edge Case: No variants, unit=kg
-    ((SELECT id FROM cat_l2 WHERE slug = 'pantry-staples'), 'Premium Basmati Rice', 'basmati-rice', 'Aged long-grain rice.', 'IndiaGate', NULL, TRUE, FALSE, 'Sold by kg.', 1000), -- Edge Case: No variants, unit=kg
-    ((SELECT id FROM cat_l2 WHERE slug = 'pantry-staples'), 'Olive Oil (500ml)', 'olive-oil-500ml', 'Extra Virgin Olive Oil.', 'Borges', NULL, TRUE, FALSE, 'Imported.', 500), -- Edge Case: No variants
+    ((SELECT id FROM cat_l2 WHERE slug = 'fresh-produce'), 'Organic Apples', 'organic-apples', 'Fresh Himachali Apples.', 'FarmFresh', NULL, TRUE, FALSE, 'Sold by kg.', 1000, 0, FALSE), -- Edge Case: No variants, unit=kg
+    ((SELECT id FROM cat_l2 WHERE slug = 'fresh-produce'), 'Local Potatoes', 'local-potatoes', 'Fresh from Bogura.', 'LocalFarm', NULL, TRUE, FALSE, 'Sold by kg.', 500, 1, FALSE), -- Edge Case: No variants, unit=kg
+    ((SELECT id FROM cat_l2 WHERE slug = 'pantry-staples'), 'Premium Basmati Rice', 'basmati-rice', 'Aged long-grain rice.', 'IndiaGate', NULL, TRUE, FALSE, 'Sold by kg.', 1000, 0, FALSE), -- Edge Case: No variants, unit=kg
+    ((SELECT id FROM cat_l2 WHERE slug = 'pantry-staples'), 'Olive Oil (500ml)', 'olive-oil-500ml', 'Extra Virgin Olive Oil.', 'Borges', NULL, TRUE, FALSE, 'Imported.', 500, 1, FALSE), -- Edge Case: No variants
     -- Appliances (1)
-    ((SELECT id FROM cat_l2 WHERE slug = 'appliances'), 'Smart Blender 3000', 'smart-blender-3000', 'Blends anything.', 'KitchenKing', NULL, TRUE, FALSE, '1200W motor.', 9000), -- Single variant
+    ((SELECT id FROM cat_l2 WHERE slug = 'appliances'), 'Smart Blender 3000', 'smart-blender-3000', 'Blends anything.', 'KitchenKing', NULL, TRUE, FALSE, '1200W motor.', 9000, 0, FALSE), -- Single variant
     -- Inactive Category Product (1)
-    ((SELECT id FROM cat_l2 WHERE slug = 'obsolete-tech'), 'Obsolete Gadget', 'obsolete-gadget', 'A gadget from an inactive category.', 'OldTech', NULL, FALSE, FALSE, 'From an inactive category.', 300) -- Edge Case
+    ((SELECT id FROM cat_l2 WHERE slug = 'obsolete-tech'), 'Obsolete Gadget', 'obsolete-gadget', 'A gadget from an inactive category.', 'OldTech', NULL, FALSE, FALSE, 'From an inactive category.', 300, 0, FALSE) -- Edge Case
   RETURNING id, slug
 ),
 

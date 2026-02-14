@@ -22,6 +22,7 @@ async function fetchCategoryBySlugOrId(slugOrId: string): Promise<CategoryRow | 
         .select("id,name,slug,parent_id,image_url")
         .eq("slug", slugOrId)
         .eq("is_active", true)
+        .eq("is_deleted", false)
         .maybeSingle();
 
     if (bySlug) return bySlug;
@@ -31,6 +32,7 @@ async function fetchCategoryBySlugOrId(slugOrId: string): Promise<CategoryRow | 
         .select("id,name,slug,parent_id,image_url")
         .eq("id", slugOrId)
         .eq("is_active", true)
+        .eq("is_deleted", false)
         .maybeSingle();
 
     return byId;
@@ -47,7 +49,10 @@ async function fetchData(slugOrId: string) {
     const { data: allCats } = await supabase
         .from("categories")
         .select("id,parent_id,name,slug,image_url")
-        .eq("is_active", true);
+        .eq("is_active", true)
+        .eq("is_deleted", false)
+        .order("sort_order", { ascending: true })
+        .order("created_at", { ascending: false });
 
     const map = new Map<string, CategoryRow>();
     (allCats || []).forEach((c) => map.set(c.id, c));
@@ -81,6 +86,8 @@ async function fetchData(slugOrId: string) {
         .select("*")
         .in("category_id", ids)
         .eq("is_active", true)
+        .eq("is_deleted", false)
+        .order("sort_order", { ascending: true })
         .order("created_at", { ascending: false });
 
     const productList: ProductRow[] = products || [];
@@ -156,8 +163,10 @@ export async function generateStaticParams(): Promise<RouteParams[]> {
         const supabase = createPublicClient();
         const { data } = await supabase
             .from("categories")
-            .select("id,slug,is_active")
+            .select("id,slug,is_active,is_deleted")
             .eq("is_active", true)
+            .eq("is_deleted", false)
+            .order("sort_order", { ascending: true })
             .order("created_at", { ascending: false });
 
         return (data || []).map((category) => ({
