@@ -110,7 +110,7 @@ export default async function Home() {
 
             {/* Feature Highlights Section */}
 
-            <section className="w-full border-t">
+            {/* <section className="w-full border-t">
                 <div className="mx-auto grid w-full max-w-7xl grid-cols-1 gap-6 px-6 py-8 sm:grid-cols-2 lg:grid-cols-5">
                     {featureHighlights.map((feature) => {
                         const Icon = feature.icon;
@@ -126,7 +126,7 @@ export default async function Home() {
                         );
                     })}
                 </div>
-            </section>
+            </section> */}
 
             {/* Popup */}
             {popupPromo && <PromoPopup promotion={popupPromo} />}
